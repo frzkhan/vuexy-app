@@ -1,11 +1,12 @@
 <script setup>
 import { ref } from "vue"
+
 const hoveredCompany = ref(null)
 
 
 
 
-const companies = [
+const companies = ref([
   {
     name: '23',
     image: 'https://i.ibb.co/nj9ctCg/23.png',
@@ -48,7 +49,7 @@ const companies = [
     colors: ['#ff00ff', '#00ff00', '#0000ff', '#800080'],
     hoverImage: null,
   },
-]
+])
 
 const selectedCompany = ref(null)
 const selectedColor = ref(null)
@@ -170,7 +171,10 @@ const addToOrder = (v, quantity) => {
         @mouseleave="company.hoverImage = company.image"
       >
         <VCardText class="py-4 px-10">
-          <img :src="company.hoverImage || company.image" width="40"  />
+          <img
+            :src="(selectedCompany == company ? selectedCompany.colorimage : null) || company.hoverImage || company.image"
+            width="40"
+          >
           <p class="icon-name text-capitalize text-truncate mb-0 pt-2">
             {{ company.name }}
           </p>
@@ -229,7 +233,10 @@ const addToOrder = (v, quantity) => {
     <div class="mt-10">
       <VRow>
         <VCol cols="8">
-          <VCard v-if="finalOrder.length" title="Order Details">
+          <VCard
+            v-if="finalOrder.length"
+            title="Order Details"
+          >
             <VDataTable
               :headers="finalOrderHeaders"
               :items="finalOrder"
@@ -278,35 +285,45 @@ const addToOrder = (v, quantity) => {
           </VCard>
         </VCol>
         <VCol cols="4">
-    <VCard v-if="finalOrder.length" title="Customer Details" class="mb-5">
-        <div class="d-flex align-center pb-5">
-            <VAvatar size="30" class="me-3 mx-5">
+          <VCard
+            v-if="finalOrder.length"
+            title="Customer Details"
+            class="mb-5"
+          >
+            <div class="d-flex align-center pb-5">
+              <VAvatar
+                size="30"
+                class="me-3 mx-5"
+              >
                 <VImg src="/src/assets/images/avatars/avatar-3.png" />
-            </VAvatar>
-            <div class="d-flex flex-column">
+              </VAvatar>
+              <div class="d-flex flex-column">
                 <h6 class="text-body-1 font-weight-medium mb-0">
-                    Customer name
+                  Customer name
                 </h6>
                 <span class="text-sm text-disabled">customer@email.com</span>
+              </div>
             </div>
-        </div>
-    </VCard>
-    <VCard v-if="finalOrder.length" title="Shipping Address">
-        <VCardText class="d-flex flex-wrap justify-space-between flex-column flex-sm-row print-row">
-            <div class="text-sm">
+          </VCard>
+          <VCard
+            v-if="finalOrder.length"
+            title="Shipping Address"
+          >
+            <VCardText class="d-flex flex-wrap justify-space-between flex-column flex-sm-row print-row">
+              <div class="text-sm">
                 <p class="mb-0">
-                    Office 149, 450 South Brand Brooklyn
+                  Office 149, 450 South Brand Brooklyn
                 </p>
                 <p class="my-2">
-                    San Diego County, CA 91905, USA
+                  San Diego County, CA 91905, USA
                 </p>
                 <p class="mb-0">
-                    +1 (123) 456 7891, +44 (876) 543 2198
+                  +1 (123) 456 7891, +44 (876) 543 2198
                 </p>
-            </div>
-        </VCardText>
-    </VCard>
-</VCol>
+              </div>
+            </VCardText>
+          </VCard>
+        </VCol>
       </VRow>
     </div>
   </div>
