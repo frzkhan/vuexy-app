@@ -1,36 +1,52 @@
 <script setup>
 import { ref } from "vue"
+const hoveredCompany = ref(null)
+
+
+
 
 const companies = [
   {
-    name: 'A',
-    icon: 'tabler-alphabet-cyrillic',
+    name: '23',
+    image: 'https://i.ibb.co/nj9ctCg/23.png',
+    colorimage: 'https://i.ibb.co/nmYPqSP/23-Holds-colour.png',
     colors: ['#ff0000', '#ff00ff', '#00ff00', '#0000ff', '#800080'],
+    hoverImage: null,
   },
   {
-    name: 'B',
-    icon: 'tabler-alphabet-greek',
+    name: 'Lapis',
+    image: 'https://i.ibb.co/w7dz3xj/Lapis.png',
+    colorimage: 'https://i.ibb.co/vQByfkX/Lapis-colour.png',
     colors: ['#ff0000', '#ff00ff', '#00ff00', '#800080'],
+    hoverImage: null,
   },
   {
-    name: 'C',
-    icon: 'tabler-ambulance',
+    name: 'Squadra',
+    image: 'https://i.ibb.co/YQ1nMsm/Squadra.png',
+    colorimage: 'https://i.ibb.co/dM4xjPs/Squadracolor.png',
     colors: ['#ff0000', '#ff00ff', '#00ff00', '#0000ff'],
+    hoverImage: null,
   },
   {
-    name: 'D',
-    icon: 'tabler-angle',
+    name: 'Polytalon',
+    image: 'https://i.ibb.co/7yH6t6v/polytalon.png',
+    colorimage: 'https://i.ibb.co/pRjw3wc/Polytalon-Black.png',
     colors: ['#ff0000', '#00ff00', '#0000ff', '#800080'],
+    hoverImage: null,
   },
   {
-    name: 'E',
-    icon: 'tabler-ad-off',
+    name: 'Unparallel',
+    image: 'https://i.ibb.co/Hn7z6Y0/Unparallel.png',
+    colorimage: 'https://i.ibb.co/DkYNk4p/Unparallelcolor.png',
     colors: ['#ff0000', '#ff00ff', '#00ff00', '#0000ff', '#800080'],
+    hoverImage: null,
   },
   {
-    name: 'F',
-    icon: 'tabler-adjustments',
+    name: 'Wide Boyz',
+    image: 'https://i.ibb.co/QKM8yDy/WideBoyz.png',
+    colorimage: 'https://i.ibb.co/mv3r29h/Wideboyz-Colour.png',
     colors: ['#ff00ff', '#00ff00', '#0000ff', '#800080'],
+    hoverImage: null,
   },
 ]
 
@@ -131,6 +147,11 @@ const addToOrder = (v, quantity) => {
 }
 </script>
 
+
+
+
+
+
 <template>
   <div>
     <h2>
@@ -145,12 +166,11 @@ const addToOrder = (v, quantity) => {
           'border': selectedCompany && selectedCompany.name === company.name,
         }"
         @click="selectedCompany = company"
+        @mouseover="company.hoverImage = company.colorimage"
+        @mouseleave="company.hoverImage = company.image"
       >
         <VCardText class="py-4 px-10">
-          <VIcon
-            size="40"
-            :icon="company.icon"
-          />
+          <img :src="company.hoverImage || company.image" width="40"  />
           <p class="icon-name text-capitalize text-truncate mb-0 pt-2">
             {{ company.name }}
           </p>
@@ -209,7 +229,7 @@ const addToOrder = (v, quantity) => {
     <div class="mt-10">
       <VRow>
         <VCol cols="8">
-          <VCard title="Order Details">
+          <VCard v-if="finalOrder.length" title="Order Details">
             <VDataTable
               :headers="finalOrderHeaders"
               :items="finalOrder"
@@ -258,41 +278,35 @@ const addToOrder = (v, quantity) => {
           </VCard>
         </VCol>
         <VCol cols="4">
-          <VCard
-            title="Customer Details"
-            class="mb-5"
-          >
-            <div class="d-flex align-center pb-5">
-              <VAvatar
-                size="30"
-                class="me-3 mx-5"
-              >
+    <VCard v-if="finalOrder.length" title="Customer Details" class="mb-5">
+        <div class="d-flex align-center pb-5">
+            <VAvatar size="30" class="me-3 mx-5">
                 <VImg src="/src/assets/images/avatars/avatar-3.png" />
-              </VAvatar>
-              <div class="d-flex flex-column">
+            </VAvatar>
+            <div class="d-flex flex-column">
                 <h6 class="text-body-1 font-weight-medium mb-0">
-                  Customer name
+                    Customer name
                 </h6>
                 <span class="text-sm text-disabled">customer@email.com</span>
-              </div>
             </div>
-          </VCard>
-          <VCard title="Shipping Address">
-            <VCardText class="d-flex flex-wrap justify-space-between flex-column flex-sm-row print-row">
-              <div class="text-sm">
+        </div>
+    </VCard>
+    <VCard v-if="finalOrder.length" title="Shipping Address">
+        <VCardText class="d-flex flex-wrap justify-space-between flex-column flex-sm-row print-row">
+            <div class="text-sm">
                 <p class="mb-0">
-                  Office 149, 450 South Brand Brooklyn
+                    Office 149, 450 South Brand Brooklyn
                 </p>
                 <p class="my-2">
-                  San Diego County, CA 91905, USA
+                    San Diego County, CA 91905, USA
                 </p>
                 <p class="mb-0">
-                  +1 (123) 456 7891, +44 (876) 543 2198
+                    +1 (123) 456 7891, +44 (876) 543 2198
                 </p>
-              </div>
-            </VCardText>
-          </VCard>
-        </VCol>
+            </div>
+        </VCardText>
+    </VCard>
+</VCol>
       </VRow>
     </div>
   </div>
