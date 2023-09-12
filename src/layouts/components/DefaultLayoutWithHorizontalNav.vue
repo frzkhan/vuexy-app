@@ -56,8 +56,5 @@ const { appRouteTransition } = useThemeConfig()
     <template #footer>
       <Footer />
     </template>
-
-    <!-- 👉 Customizer -->
-    <TheCustomizer />
   </HorizontalNavLayout>
 </template>

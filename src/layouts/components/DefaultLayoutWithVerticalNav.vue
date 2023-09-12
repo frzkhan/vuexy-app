@@ -61,8 +61,5 @@ const { width: windowWidth } = useWindowSize()
     <template #footer>
       <Footer />
     </template>
-
-    <!-- 👉 Customizer -->
-    <TheCustomizer />
   </VerticalNavLayout>
 </template>
