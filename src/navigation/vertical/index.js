@@ -1,3 +1,4 @@
+import appAndPages from './app-and-pages'
 
 // export default [...dashboard, ...appAndPages, ...uiElements, ...forms, ...charts, ...others]
 export default [
@@ -14,7 +15,8 @@ export default [
   },
 
   // ...dashboard,
-  // ...appAndPages,
+  ...appAndPages,
+
   // ...uiElements,
   // ...forms,
   // ...charts,

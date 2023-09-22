@@ -1,10 +1,6 @@
 <script setup>
 import { ref } from "vue"
 
-const hoveredCompany = ref(null)
-
-
-
 
 const companies = ref([
   {
@@ -52,7 +48,15 @@ const companies = ref([
 ])
 
 const selectedCompany = ref(null)
-const selectedColor = ref(null)
+const selectedColors = ref(new Set())
+
+function updateColorSet(color) {
+  if (selectedColors.value.has(color)) {
+    selectedColors.value.delete(color)
+  } else {
+    selectedColors.value.add(color)
+  }
+}
 
 import { VDataTable } from 'vuetify/labs/VDataTable'
 import data from './datatable'
@@ -83,10 +87,6 @@ const headers = [
     key: 'climbing_ability',
   },
   {
-    title: 'COLOR',
-    key: 'color',
-  },
-  {
     title: 'QUANTITY',
     key: 'quantity',
   },
@@ -102,7 +102,11 @@ const finalOrderHeaders = [
     key: 'price',
   },
   {
-    title: 'QUANTITY',
+    title: 'Color',
+    key: 'color',
+  },
+  {
+    title: 'Quantity',
     key: 'quantity',
   },
   {
@@ -113,9 +117,25 @@ const finalOrderHeaders = [
 
 // on color change filter data property by color
 const dataFilteredByColor = computed(() => {
-  if (!selectedColor.value) return data
+  console.log(selectedColors)
+  if (!selectedColors.value.size) return []
 
-  return data.filter(item => item.colors.includes(selectedColor.value))
+  const filteredData = data.map(item => {
+    item.quantityByColor = item.colors.reduce((acc, color) => {
+      acc[color] = 0
+      
+      return acc
+    }, {})
+    
+    return item
+  })
+  
+  return filteredData.filter(item => {
+    const itemColors = new Set(item.colors)
+    const intersection = new Set([...itemColors].filter(x => selectedColors.value.has(x)))
+    
+    return intersection.size
+  })
 })
 
 const finalOrder = ref([])
@@ -124,34 +144,37 @@ const finalTotal = computed(() => {
   return finalOrder.value.reduce((acc, item) => acc + item.total, 0)
 })
 
-const addToOrder = (v, quantity) => {
-  quantity = parseInt(quantity)
-  if (!quantity) return
+const addToOrder = (v, quantityByColor) => {
+  console.log(v.value, quantityByColor)
   
   const item = v.value
+  const orderItems = finalOrder.value.filter(order => order.name === item.name)
+
+  Object.keys(quantityByColor).forEach(color => {
+    const quantity = quantityByColor[color]
+    
+    if (quantity) {
+      const orderItem = orderItems.find(order => order.color === color)
+      
+      if (orderItem) {
+        orderItem.quantity += quantity
+        orderItem.total = orderItem.quantity * orderItem.price
+      } else {
+        finalOrder.value.push({
+          name: item.name,
+          price: item.price,
+          quantity: quantity,
+          total: quantity * item.price,
+          color,
+        })
+      }
+    }
+    quantityByColor[color] = 0
+  })
 
 
-  const orderItem = finalOrder.value.find(order => order.name === item.name)
-
-  if (orderItem) {
-    orderItem.quantity += quantity
-    orderItem.total = orderItem.quantity * orderItem.price
-  } else {
-    finalOrder.value.push({
-      name: item.name,
-      price: item.price,
-      quantity: quantity,
-      total: quantity * item.price,
-    })
-  }
-  console.log(finalOrder)
 }
 </script>
-
-
-
-
-
 
 <template>
   <div>
@@ -189,8 +212,11 @@ const addToOrder = (v, quantity) => {
         v-for="(color, index) in selectedCompany.colors"
         :key="index"
         class="mb-6 me-6 text-center"
+        :class="{
+          'border selected-color-item': selectedColors.has(color),
+        }"
         :style="{ backgroundColor: color }"
-        @click="selectedColor = color"
+        @click="updateColorSet(color)"
       >
         <VCardText class="py-11 px-15">
           <p class="icon-name text-capitalize text-truncate mb-0 pt-2" />
@@ -198,7 +224,7 @@ const addToOrder = (v, quantity) => {
       </VCard>
     </div>
 
-    <div v-if="selectedColor">
+    <div v-if="selectedColors.size">
       <VCard title="Your Order Form">
         <VDataTable
           :headers="headers"
@@ -207,24 +233,32 @@ const addToOrder = (v, quantity) => {
           height="300"
           fixed-header
         >
-          <template #item.color="{ item }">
-            <VCard
-              class="m-6 me-6 py-4 px-4 text-center"
-              :style="{ backgroundColor: selectedColor }"
-            />
-          </template>  
           <template #item.quantity="{ item }">
-            <div class="flex">
-              <AppTextField
-                v-model="item.quantity"
-                type="number"
+            <div style="display: flex;">
+              <div
+                v-for="color in item.value.colors"
+                :key="color"
               >
-                <template #append>
-                  <VBtn @click="addToOrder(item, item.quantity)">
-                    <span>Add</span>
-                  </VBtn>
-                </template>
-              </AppTextField>
+                <input
+                  v-model="item.value.quantityByColor[color]"
+                  type="number"
+                  name="quantity"
+                  min="0"
+                  max="10"
+                  autocomplete="off"
+                  class="colorBox text-center text-white"
+                  style="width: 50px;appearance: textfield;appearance: none;outline: none;"
+                  :style="{ backgroundColor: color, color: 'black', width: '50px' }"
+                  @focus="$event.target.select()"
+                >
+              </div>
+              <VBtn
+                size="sm"
+                class="px-2 mx-2"
+                @click="addToOrder(item, item.value.quantityByColor)"
+              >
+                Add
+              </VBtn>
             </div>
           </template>
         </VDataTable>
@@ -242,7 +276,16 @@ const addToOrder = (v, quantity) => {
               :items="finalOrder"
               height="300"
               fixed-header
-            />
+            >
+              <template #item.color="{ item }">
+                <div
+                  class="p-5"
+                  :style="{backgroundColor: item.value.color, width: '50px'}"
+                >
+                  &nbsp;
+                </div>
+              </template>
+            </VDataTable>
             <VCardText class="py-4 px-10">
               <div class="my-2 mx-sm-4">
                 <table class="float-right">
@@ -328,3 +371,22 @@ const addToOrder = (v, quantity) => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.colorBox::-webkit-outer-spin-button,
+.colorBox::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+/* Firefox */
+.colorBox {
+  /* stylelint-disable-next-line property-no-vendor-prefix */
+  -moz-appearance: textfield;
+}
+
+.selected-color-item {
+  border: 1px solid white;
+  opacity: 0.5;
+}
+</style>

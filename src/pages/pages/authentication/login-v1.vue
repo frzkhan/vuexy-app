@@ -1,17 +1,55 @@
 <script setup>
+import axios from '@axios'
+import { useAppAbility } from '@/plugins/casl/useAppAbility'
 import AuthProvider from '@/views/pages/authentication/AuthProvider.vue'
 import authV1BottomShape from '@images/svg/auth-v1-bottom-shape.svg?raw'
 import authV1TopShape from '@images/svg/auth-v1-top-shape.svg?raw'
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
 
-const form = ref({
-  email: '',
-  password: '',
-  remember: false,
+const errors = ref({
+  email: undefined,
+  password: undefined,
 })
 
+const route = useRoute()
+const router = useRouter()
+const ability = useAppAbility()
+
 const isPasswordVisible = ref(false)
+const refVForm = ref()
+const email = ref('admin@demo.com')
+const password = ref('admin')
+const rememberMe = ref(false)
+
+const login = () => {
+  axios.post('/auth/login', {
+    email: email.value,
+    password: password.value,
+  }).then(r => {
+    const { accessToken, userData, userAbilities } = r.data
+
+    localStorage.setItem('userAbilities', JSON.stringify(userAbilities))
+    ability.update(userAbilities)
+    localStorage.setItem('userData', JSON.stringify(userData))
+    localStorage.setItem('accessToken', JSON.stringify(accessToken))
+
+    // Redirect to `to` query if exist or redirect to index route
+    router.replace(route.query.to ? String(route.query.to) : '/')
+  }).catch(e => {
+    const { errors: formErrors } = e.response.data
+
+    errors.value = formErrors
+    console.error(e.response.data)
+  })
+}
+
+const onSubmit = () => {
+  refVForm.value?.validate().then(({ valid: isValid }) => {
+    if (isValid)
+      login()
+  })
+}
 </script>
 
 <template>
@@ -56,12 +94,15 @@ const isPasswordVisible = ref(false)
         </VCardText>
 
         <VCardText>
-          <VForm @submit.prevent="() => {}">
+          <VForm
+            ref="refVForm"
+            @submit.prevent="onSubmit"
+          >
             <VRow>
               <!-- email -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="form.email"
+                  v-model="email"
                   autofocus
                   label="Email"
                   type="email"
@@ -71,7 +112,7 @@ const isPasswordVisible = ref(false)
               <!-- password -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="form.password"
+                  v-model="password"
                   label="Password"
                   :type="isPasswordVisible ? 'text' : 'password'"
                   :append-inner-icon="isPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
@@ -81,7 +122,7 @@ const isPasswordVisible = ref(false)
                 <!-- remember me checkbox -->
                 <div class="d-flex align-center justify-space-between flex-wrap mt-2 mb-4">
                   <VCheckbox
-                    v-model="form.remember"
+                    v-model="rememberMe"
                     label="Remember me"
                   />
 
