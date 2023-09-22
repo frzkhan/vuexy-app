@@ -66,26 +66,32 @@ const headers = [
     title: 'NAME',
     key: 'name',
   },
-  {
-    title: 'CATEGORY',
-    key: 'category',
-  },
-  {
-    title: 'HOLD TYPE',
-    key: 'hold_type',
-  },
-  {
-    title: 'MATERIAL',
-    key: 'material',
-  },
+
+  // {
+  //   title: 'CATEGORY',
+  //   key: 'category',
+  // },
+  // {
+  //   title: 'HOLD TYPE',
+  //   key: 'hold_type',
+  // },
+  // {
+  //   title: 'MATERIAL',
+  //   key: 'material',
+  // },
   {
     title: 'HOLDS PER SET',
     key: 'holds_per_set',
   },
   {
-    title: 'CLIMBING ABILITY',
-    key: 'climbing_ability',
+    title: 'COST (AUD)',
+    key: 'price',
   },
+
+  // {
+  //   title: 'CLIMBING ABILITY',
+  //   key: 'climbing_ability',
+  // },
   {
     title: 'QUANTITY',
     key: 'quantity',
@@ -233,6 +239,37 @@ const addToOrder = (v, quantityByColor) => {
           height="300"
           fixed-header
         >
+          <template #item.name="{ item }">
+            <div class="d-flex align-center">
+              <p class="icon-name text-capitalize text-truncate mb-0 pt-2">
+                {{ item.value.name }}
+                <VTooltip
+                  location="top"
+                  activator="parent"
+                >
+                  <div class="d-flex">
+                    <div class="pr-3">
+                      <img
+                        src="https://i.ibb.co/nmYPqSP/23-Holds-colour.png"
+                        width="100"
+                      >
+                    </div>
+                    <div>
+                      <strong>Name: {{ item.value.name }}</strong>
+                      <br>
+                      <strong>Category:</strong> {{ item.value.category }}
+                      <br>
+                      <strong>Hold Type:</strong> {{ item.value.hold_type }}
+                      <br>
+                      <strong>Material:</strong> {{ item.value.material }}
+                      <br>
+                      <strong>Holds Per Set:</strong> {{ item.value.holds_per_set }}
+                    </div>
+                  </div>
+                </VTooltip>
+              </p>
+            </div>
+          </template>
           <template #item.quantity="{ item }">
             <div style="display: flex;">
               <div
