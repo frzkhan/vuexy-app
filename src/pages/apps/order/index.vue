@@ -283,14 +283,14 @@ const addToOrder = (v, quantityByColor) => {
                   min="0"
                   max="10"
                   autocomplete="off"
-                  class="colorBox text-center text-white"
-                  style="width: 50px;appearance: textfield;appearance: none;outline: none;"
+                  class="colorBox text-center text-white rounded"
+                  style="width: 50px;height: 100%;appearance: textfield;appearance: none;outline: none;"
                   :style="{ backgroundColor: color, color: 'black', width: '50px' }"
                   @focus="$event.target.select()"
                 >
               </div>
               <VBtn
-                size="sm"
+
                 class="px-2 mx-2"
                 @click="addToOrder(item, item.value.quantityByColor)"
               >
