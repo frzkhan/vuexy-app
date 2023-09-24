@@ -273,7 +273,7 @@ const addToOrder = (v, quantityByColor) => {
           <template #item.quantity="{ item }">
             <div style="display: flex;">
               <div
-                v-for="color in item.value.colors"
+                v-for="color in item.value.colors.filter(color => selectedColors.has(color))"
                 :key="color"
               >
                 <input
@@ -423,7 +423,6 @@ const addToOrder = (v, quantityByColor) => {
 }
 
 .selected-color-item {
-  border: 1px solid white;
-  opacity: 0.5;
+  border: 2px solid white !important;
 }
 </style>
